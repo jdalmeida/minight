@@ -10,11 +10,211 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([name])
+// User model that integrates with Clerk
+model User {
+  id            String       @id
+  email         String       @unique
+  name          String?
+  imageUrl      String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  projects      Project[]    // Projects owned by the user
+  teamMembers   TeamMember[] // Teams the user belongs to
+  issues        Issue[]      @relation("IssueCreator") // Issues created by the user
+  assignedIssues Issue[]     @relation("IssueAssignee") // Issues assigned to the user
+  comments      Comment[]    // Comments made by the user
+  activities    Activity[]   // User activities
 }
+
+// Team model for collaborative work
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     TeamMember[] // Team members
+  projects    Project[]    // Projects owned by the team
+}
+
+// TeamMember model for user-team relationships
+model TeamMember {
+  id        String   @id @default(cuid())
+  userId    String
+  teamId    String
+  role      String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
+
+// Project model (enhanced from previous version)
+model Project {
+  id             String       @id @default(cuid())
+  name           String
+  slug           String       @unique
+  description    String?
+  repositoryUrl  String
+  branch         String?      @default("main")
+  dockerfilePath String       @default("Dockerfile")
+  webhookSecret  String?
+  buildCommand   String?
+  startCommand   String?
+  envVars        EnvVar[]     // Environment variables
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  ownerId        String?      // User who owns the project
+  teamId         String?      // Team that owns the project
+  owner          User?        @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  team           Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  deployments    Deployment[] // Project deployments
+  domains        Domain[]     // Custom domains
+  workflows      Workflow[]   // CI/CD workflows
+  issues         Issue[]      // Project issues
+
+  Label Label[]
+}
+
+// Deployment model (enhanced from previous version)
+model Deployment {
+  id            String    @id @default(cuid())
+  projectId     String
+  status        String    @default("QUEUED") // QUEUED, BUILDING, SUCCESS, FAILED
+  commitSha     String
+  commitMessage String
+  branch        String
+  url           String?
+  error         String?
+  buildLogs     String?   @db.Text
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  activities    Activity[]
+}
+
+// Environment variables for projects
+model EnvVar {
+  id        String   @id @default(cuid())
+  projectId String
+  key       String
+  value     String
+  isSecret  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, key])
+}
+
+// Custom domains for projects
+model Domain {
+  id           String   @id @default(cuid())
+  projectId    String
+  domain       String   @unique
+  verified     Boolean  @default(false)
+  verifiedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// CI/CD workflows
+model Workflow {
+  id          String        @id @default(cuid())
+  projectId   String
+  name        String
+  definition  String        @db.Text // YAML definition
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  runs        WorkflowRun[]
+}
+
+// Workflow runs
+model WorkflowRun {
+  id         String    @id @default(cuid())
+  workflowId String
+  status     String    @default("QUEUED") // QUEUED, RUNNING, SUCCESS, FAILED
+  logs       String?   @db.Text
+  error      String?
+  startedAt  DateTime?
+  endedAt    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  workflow   Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+// Issue tracking system
+model Issue {
+  id          String     @id @default(cuid())
+  projectId   String
+  number      Int
+  title       String
+  description String?    @db.Text
+  status      String     @default("OPEN") // OPEN, IN_PROGRESS, CLOSED
+  priority    String     @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  creatorId   String
+  assigneeId  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  closedAt    DateTime?
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator     User       @relation("IssueCreator", fields: [creatorId], references: [id])
+  assignee    User?      @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  comments    Comment[]
+  labels      Label[]    @relation("IssueToLabel")
+  activities  Activity[]
+
+  @@unique([projectId, number])
+}
+
+// Comments on issues
+model Comment {
+  id        String   @id @default(cuid())
+  issueId   String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Labels for issues
+model Label {
+  id        String   @id @default(cuid())
+  name      String
+  color     String
+  projectId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues    Issue[]  @relation("IssueToLabel")
+
+  @@unique([projectId, name])
+}
+
+// Activity log for tracking changes
+model Activity {
+  id           String     @id @default(cuid())
+  userId       String
+  action       String     // CREATED, UPDATED, DELETED, DEPLOYED, etc.
+  resourceType String     // PROJECT, DEPLOYMENT, ISSUE, etc.
+  resourceId   String
+  metadata     Json?      // Additional context about the activity
+  createdAt    DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issue        Issue?     @relation(fields: [issueId], references: [id])
+  issueId      String?
+  deployment   Deployment? @relation(fields: [deploymentId], references: [id])
+  deploymentId String?
+}
+
