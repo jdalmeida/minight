@@ -41,6 +41,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      lucide:
+        specifier: ^0.487.0
+        version: 0.487.0
       lucide-react:
         specifier: ^0.487.0
         version: 0.487.0(react@19.1.0)
@@ -886,6 +889,9 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  lucide@0.487.0:
+    resolution: {integrity: sha512-SJk/ANI/Qu6ieS1uZqy6ZQcEB7/oH+gVtCGrmzcvSQKJVWsGSlbR/SMTxIdqqbb1/h+eJBSVkWB7I0jGnjuOFw==}
+
   map-obj@4.3.0:
     resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
     engines: {node: '>=8'}
@@ -1648,6 +1654,8 @@ snapshots:
   lucide-react@0.487.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+
+  lucide@0.487.0: {}
 
   map-obj@4.3.0: {}
 

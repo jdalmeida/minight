@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -13,9 +13,8 @@ export const metadata: Metadata = {
 	icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
-	subsets: ["latin"],
-	variable: "--font-geist-sans",
+const jetbrains = JetBrains_Mono({
+	subsets: ["latin"]
 });
 
 export default function RootLayout({
@@ -23,7 +22,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<ClerkProvider localization={ptBR}>
-			<html lang="en" className={`${geist.variable}`}>
+			<html lang="pt-br" className={`${jetbrains.className}`}>
 				<body>
 					<TRPCReactProvider>{children}</TRPCReactProvider>
 				</body>
