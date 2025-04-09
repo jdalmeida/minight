@@ -1,4 +1,6 @@
+import { Button } from '@/components/ui/button';
 import { LucideMoon } from 'lucide-react'
+import Link from 'next/link';
 
 export default async function Home() {
 
@@ -11,6 +13,19 @@ export default async function Home() {
 				<LucideMoon/>
 			</div>
 			<p>The self-hosted vercel</p>
+			<div className='flex gap-2 items-center mt-4'>
+				<Link href={'/sign-up'}>
+					<Button>
+						Criar conta
+					</Button>
+				</Link>
+
+				<Link href={'/sign-in'}>
+					<Button variant={'ghost'}>
+						Fazer login
+					</Button>
+				</Link>
+			</div>
 		</main>
 	);
 }
