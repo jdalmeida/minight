@@ -1,3 +1,4 @@
+import CreateDeployment from "@/components/dashboard/create-deployment";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PlusCircleIcon } from "lucide-react";
@@ -5,12 +6,12 @@ import { PlusCircleIcon } from "lucide-react";
 export default function Page() {
   return (
     <div>
-      <h1 className="text-2xl font-black mb-8">Apps</h1>
-      <div className="flex justify-center items-center w-full h-full">
-        <Card className="flex p-8 items-center justify-center flex-col max-w-xl w-full border-dashed rounded-md">
+      <h1 className="mb-8 font-black text-2xl">Apps</h1>
+      <div className="flex h-full w-full items-center justify-center">
+        <Card className="flex w-full max-w-xl flex-col items-center justify-center rounded-md border-dashed p-8">
           <PlusCircleIcon className="size-10"/>
           <p>Sem nenhum deploy ainda.</p>
-          <Button>Adicionar app +</Button>
+          <CreateDeployment/>
         </Card>
       </div>
     </div>

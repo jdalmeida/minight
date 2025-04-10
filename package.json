@@ -22,7 +22,9 @@
 		"@clerk/localizations": "^3.13.8",
 		"@clerk/nextjs": "^6.14.2",
 		"@prisma/client": "^6.5.0",
+		"@radix-ui/react-alert-dialog": "^1.1.7",
 		"@radix-ui/react-dialog": "^1.1.7",
+		"@radix-ui/react-select": "^2.1.7",
 		"@radix-ui/react-separator": "^1.1.3",
 		"@radix-ui/react-slot": "^1.2.0",
 		"@radix-ui/react-tooltip": "^1.2.0",
@@ -41,8 +43,10 @@
 		"react-icons": "^5.5.0",
 		"server-only": "^0.0.1",
 		"superjson": "^2.2.1",
+		"svix": "^1.63.1",
 		"tailwind-merge": "^3.2.0",
 		"tw-animate-css": "^1.2.5",
+		"yaml": "^2.7.1",
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
