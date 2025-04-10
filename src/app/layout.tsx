@@ -22,7 +22,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<ClerkProvider localization={ptBR}>
-			<html lang="pt-br" className={`${jetbrains.className}`}>
+			<html lang="pt-br" className={`dark ${jetbrains.className}`}>
 				<body>
 					<TRPCReactProvider>{children}</TRPCReactProvider>
 				</body>
