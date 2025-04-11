@@ -61,10 +61,6 @@ model Project {
   description    String?
   repositoryUrl  String
   branch         String?      @default("main")
-  dockerfilePath String       @default("Dockerfile")
-  webhookSecret  String?
-  buildCommand   String?
-  startCommand   String?
   envVars        EnvVar[]     // Environment variables
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
