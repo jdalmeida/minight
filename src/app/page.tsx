@@ -10,11 +10,11 @@ export default async function Home() {
 		<main className="flex min-h-screen flex-col items-center justify-center">
 			<div className='flex flex-col items-center'>
 				<LucideMoon className='relative translate-x-3'/>
-				<h1 className="text-5xl italic font-black">
+				<h1 className="font-black text-5xl italic">
 					MINIGHT
 				</h1>
 			</div>
-			<div className='flex gap-2 mb-4'>
+			<div className="mb-4 flex gap-2">
 				<FaGithub/>
 				<FaGitlab/>
 				<FaBitbucket/>
@@ -28,7 +28,7 @@ export default async function Home() {
 					</Link>
 			</SignedIn>
 			<SignedOut>
-				<div className='flex gap-2 items-center mt-4'>
+				<div className="mt-4 flex items-center gap-2">
 					<Link href={'/sign-up'}>
 						<Button>
 							Criar conta

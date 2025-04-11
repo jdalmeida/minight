@@ -17,7 +17,7 @@ export const repoRouter = createTRPCRouter({
     repositoryUrl: z.string(),
     branch: z.string().optional(),
   }))
-  .query(async ({ ctx, input }) => {
+  .mutation(async ({ ctx, input }) => {
     const existingProject = await ctx.db.project.findUnique({
       where: {
         slug: input.slug
@@ -109,5 +109,66 @@ export const repoRouter = createTRPCRouter({
         id: input.id
       }
     })
+  }),
+
+  getPaginatedProjects: protectedProcedure
+  .input(z.object({
+    page: z.number().default(0),
+    limit: z.number().default(10)
+  }))
+  .query(async ({ ctx, input }) => {
+    const totalProjects = await ctx.db.project.count({
+      where: {
+        ownerId: ctx.auth.userId
+      }
+    });
+
+    const projects = await ctx.db.project.findMany({
+      where: {
+        ownerId: ctx.auth.userId
+      },
+      skip: input.page * input.limit,
+      take: input.limit,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    const totalPages = Math.ceil(totalProjects / input.limit);
+    const nextPage = input.page + 1 < totalPages ? input.page + 1 : null;
+
+    return {
+      projects,
+      totalPages,
+      nextPage
+    };
+  }),
+
+  getProjectById: protectedProcedure
+  .input(z.object({
+    id: z.string().cuid()
+  }))
+  .query(async ({ ctx, input }) => {
+    const project = await ctx.db.project.findUnique({
+      where: {
+        id: input.id
+      }
+    })
+
+    if (!project) {
+      throw new TRPCError({
+        message: 'Project not found!',
+        code: 'NOT_FOUND'
+      })
+    }
+
+    if (project.ownerId !== ctx.auth.userId){
+      throw new TRPCError({
+        message: 'You are not the owner of the project!',
+        code: 'UNAUTHORIZED'
+      })
+    }
+
+    return project
   }),
 });
